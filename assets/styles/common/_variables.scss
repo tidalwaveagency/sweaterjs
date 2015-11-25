@@ -1,0 +1,50 @@
+// Glyphicons font path
+$icon-font-path:        "../fonts/";
+
+// Grid settings
+$main-sm-columns:       12;
+$sidebar-sm-columns:    4;
+
+// Colors
+$brand-primary:         #27ae60;
+
+
+//== Navbar
+//
+//##
+
+// Basics of a navbar
+$navbar-height:                    125px !default;
+$navbar-border-radius:             0 !default;
+$navbar-collapse-max-height:       340px !default;
+
+$navbar-default-color:             #fff !default;
+$navbar-default-bg:                rgba(0,48,60,0.5) !default;
+$navbar-default-border:            $navbar-default-bg !default;
+
+// Navbar links
+$navbar-default-link-color:                #fff !default;
+$navbar-default-link-hover-color:          #fff !default;
+$navbar-default-link-hover-bg:             transparent !default;
+$navbar-default-link-active-color:         #fff !default;
+$navbar-default-link-active-bg:            transparent !default;
+$navbar-default-link-disabled-color:       #ccc !default;
+$navbar-default-link-disabled-bg:          transparent !default;
+
+// Navbar brand label
+$navbar-default-brand-color:               $navbar-default-link-color !default;
+$navbar-default-brand-hover-color:         darken($navbar-default-brand-color, 10%) !default;
+$navbar-default-brand-hover-bg:            transparent !default;
+
+// Navbar toggle
+$navbar-default-toggle-hover-bg:           transparent !default;
+$navbar-default-toggle-icon-bar-bg:        #fff !default;
+$navbar-default-toggle-border-color:       transparent !default;
+
+
+//== Typography
+//
+//## Font, line-height, and color for body text, headings, and more.
+
+$font-family-sans-serif:  "Lato", Helvetica, Arial, sans-serif !default;
+$font-family-serif:       "Lato", "Times New Roman", Times, serif !default;

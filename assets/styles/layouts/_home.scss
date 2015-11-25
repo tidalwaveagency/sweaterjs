@@ -1,0 +1,26 @@
+.home {
+  background-image: url(../images/home-background.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  .content {
+    transform: translate(-50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 7vw;
+    width: 100%;
+    font-family: $font-family-sans-serif;
+    @media screen and (min-width: $screen-sm-min) {
+      font-size:6vw;
+    }
+    @media screen and (min-width: $screen-lg-min) {
+      font-size: 5vw;
+    }
+    p {
+      color: #d9d9d9;
+      text-align: center;
+      line-height: 1.2em;
+    }
+  }
+}

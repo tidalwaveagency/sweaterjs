@@ -14,17 +14,42 @@
       <!--[if lt IE 8]>
           <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
       <![endif]-->
+      <div id="preloader"></div>
       <div class="wrapper">
         <div class="content">
-          <canvas id="canvas" width="2720" height="1040"></canvas>
+          <canvas id="canvas" width="3840" height="1040"></canvas>
         </div>
-        <div id="json">
+        <div class="form-group">
+          <label for="lineOne">Line One</label>
+          <input type="text" class="form-control input-lg" id="lineOne" onkeyup="sweaterJS.keyUp();">
+        </div>
 
+        <div class="form-group">
+          <label for="lineTwo">Line Two</label>
+          <input type="text" class="form-control input-lg" id="lineTwo" onkeyup="sweaterJS.keyUp();">
+        </div>
+        <div class="radio">
+          <label>
+            <input type="radio" name="color" id="red" value="red" checked onclick="sweaterJS.keyUp();">
+            Red &amp; White
+          </label>
+        </div>
+        <div class="radio">
+          <label>
+            <input type="radio" name="color" id="blue" value="blue" onclick="sweaterJS.keyUp();">
+            Blue &amp; White
+          </label>
         </div>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
         <script src="scripts/main.js"></script>
+
+        <script>
+    			$(function() {
+    				sweaterJS.init();
+    			});
+    		</script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>

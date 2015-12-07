@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Trinity Tv Networks</title>
+        <title>Ugly Sweater</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -40,10 +40,28 @@
             Blue &amp; White
           </label>
         </div>
-
+        <button class="share" onclick="sweaterJS.post();">Share on Facebook</button>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
         <script src="scripts/main.js"></script>
+
+        <script>
+          window.fbAsyncInit = function() {
+            FB.init({
+              appId      : '1702389059994802',
+              xfbml      : true,
+              version    : 'v2.5'
+            });
+          };
+
+          (function(d, s, id){
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "https://connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+           }(document, 'script', 'facebook-jssdk'));
+        </script>
 
         <script>
     			$(function() {

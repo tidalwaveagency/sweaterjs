@@ -2,6 +2,7 @@
   "dependencies": {
     "main.js": {
       "files": [
+        "scripts/base64binary.js",
         "scripts/letters.js",
         "scripts/main.js"
       ],

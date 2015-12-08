@@ -8,7 +8,8 @@
   "private": true,
   "dependencies": {
     "bootstrap-sass": "3.3.5",
-    "modernizr": "2.8.2"
+    "modernizr": "2.8.2",
+    "jquery-typewatch": "~2.2.2"
   },
   "overrides": {
     "modernizr": {

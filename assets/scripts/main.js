@@ -2,6 +2,7 @@ var sweaterJS = (function () {
 
   var canvas = document.getElementById("canvas");
   var context = document.getElementById('canvas').getContext('2d');
+
   var imageSrcs = {
     "red": ["images/pixels/0.jpg",
             "images/pixels/1.jpg",
@@ -59,14 +60,7 @@ var sweaterJS = (function () {
 
   function loaded(){
     $('#preloader').hide();
-    for (var i = 0; i < 1920; i+= tileData.width) {
-      tile(letterData.spacer, 'red');
-    }
-    offset.width = 0;
-    offset.height = 40 * tileData.height;
-    for (var i = 0; i < 1920; i+= tileData.width) {
-      tile(letterData.spacer, 'red');
-    }
+    onKeyUp();
   }
 
   function lineLength(el){
@@ -87,27 +81,67 @@ var sweaterJS = (function () {
 
     var lineOne = document.getElementById("lineOne").value;
     var lineTwo = document.getElementById("lineTwo").value;
+    var lineThree = document.getElementById("lineThree").value;
 
-    var color = getColor();
+    var canvasHeight = 0;
+    var canvasWidth = 0;
+
+    var color = 'red';
 
     var lineOneSize = lineLength(lineOne),
-        lineTwoSize = lineLength(lineTwo);
+        lineTwoSize = lineLength(lineTwo),
+        lineThreeSize = lineLength(lineThree);
 
     var lineOneLeftover = 0,
-        lineTwoLeftover = 0;
+        lineTwoLeftover = 0,
+        lineThreeLeftover = 0;
+
+    var longestLine = Math.max(lineOneSize, lineTwoSize, lineThreeSize);
+
+    if (longestLine < 1152) {
+      canvasWidth = 1152;
+    } else {
+      canvasWidth = 2304;
+    }
+
+    canvasHeight = (trimData.top.height * tileData.height) + (trimData.tree.height * tileData.height) + (trimData.wave.height * tileData.height) + (trimData.boat.height * tileData.height);
+
+    if (lineOne.length > 0) {
+      canvasHeight += 40 * tileData.height;
+    }
+
+    if (lineTwo.length > 0) {
+      canvasHeight += 40 * tileData.height;
+    }
+
+    if (lineThree.length > 0) {
+      canvasHeight += 40 * tileData.height;
+    }
+
+    canvas.height = canvasHeight;
+    canvas.width = canvasWidth;
 
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     offset.width = 0;
     offset.height = 0;
 
-    lineOneLeftover = 1920 - lineOneSize;
+    lineOneLeftover = canvas.width - lineOneSize;
 
-    for (var i = 0; i < canvas.width/28; i++) {
-      tile(trimData.boat, color);
+    for (var i = 0; i < canvas.width/36; i++) {
+      tile(trimData.flake, color);
+      tile(trimData.tree, color);
     }
 
-    offset.height += trimData.boat.height * tileData.height;
+    offset.height += trimData.tree.height * tileData.height;
+    offset.width = 0;
+
+    for (var i = 0; i < canvas.width/12; i++) {
+      tile(trimData.top, color);
+    }
+
+    offset.height += trimData.top.height * tileData.height;
+
     offset.width = 0;
 
     for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
@@ -128,7 +162,7 @@ var sweaterJS = (function () {
       offset.width = 0;
       offset.height += 40 * tileData.height;
 
-      lineTwoLeftover = 1920 - lineTwoSize;
+      lineTwoLeftover = canvas.width - lineTwoSize;
 
       for (var i = 0; i < lineTwoLeftover/4; i+= tileData.width) {
         tile(letterData.spacer, color);
@@ -144,13 +178,47 @@ var sweaterJS = (function () {
         tile(letterData.spacer, color);
       }
 
-    } else {
+    }
+
+    if (lineThree.length > 0) {
       offset.width = 0;
-      offset.height = 40 * tileData.height;
-      for (var i = 0; i < 1920; i+= tileData.width) {
+      offset.height += 40 * tileData.height;
+
+      lineThreeLeftover = canvas.width - lineThreeSize;
+
+      for (var i = 0; i < lineThreeLeftover/4; i+= tileData.width) {
         tile(letterData.spacer, color);
       }
+
+      for (var i = 0; i < lineThree.length; i++) {
+        if (letterData[lineThree.charAt(i).toLowerCase()] !== undefined) {
+          tile(letterData[lineThree.charAt(i).toLowerCase()], color);
+        }
+      }
+
+      for (var i = 0; i < lineThreeLeftover/4; i+= tileData.width) {
+        tile(letterData.spacer, color);
+      }
+
     }
+
+    offset.height += 40 * tileData.height;
+    offset.width = 0;
+
+    for (var i = 0; i < canvas.width/12; i++) {
+      tile(trimData.wave, color);
+    }
+
+    offset.height += trimData.wave.height * tileData.height;
+    offset.width = 0;
+
+    for (var i = 0; i < canvas.width/36; i++) {
+      tile(trimData.cane, color);
+      tile(trimData.tree, color);
+    }
+
+    offset.height += trimData.tree.height * tileData.height;
+
   }
 
   function tile(character, color) {
@@ -189,7 +257,7 @@ var sweaterJS = (function () {
       formData += '\r\n';
       formData += '--' + boundary + '\r\n';
       formData += 'Content-Disposition: form-data; name="message"\r\n\r\n';
-      formData += message + '\r\n';
+
       formData += '--' + boundary + '--\r\n';
 
       var xhr = new XMLHttpRequest();

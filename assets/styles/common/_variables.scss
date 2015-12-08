@@ -6,8 +6,10 @@ $main-sm-columns:       12;
 $sidebar-sm-columns:    4;
 
 // Colors
-$brand-primary:         #27ae60;
+$brand-primary:         #c1192a;
 
+//** Global text color on `<body>`.
+$text-color:            #fff !default;
 
 //== Navbar
 //
@@ -41,10 +43,16 @@ $navbar-default-toggle-hover-bg:           transparent !default;
 $navbar-default-toggle-icon-bar-bg:        #fff !default;
 $navbar-default-toggle-border-color:       transparent !default;
 
-
 //== Typography
 //
 //## Font, line-height, and color for body text, headings, and more.
 
 $font-family-sans-serif:  "Lato", Helvetica, Arial, sans-serif !default;
-$font-family-serif:       "Lato", "Times New Roman", Times, serif !default;
+$font-family-serif:       "Merriweather", "Times New Roman", Times, serif !default;
+
+
+//** By default, this inherits from the `<body>`.
+$headings-font-family:    $font-family-serif !default;
+$headings-font-weight:    400 !default;
+$headings-line-height:    1.1 !default;
+$headings-color:          $brand-primary !default;

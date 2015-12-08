@@ -7,13 +7,12 @@ html {
 body {
   min-height: 100%;
 }
-.wrapper {
-  /* Margin bottom by footer height */
-  min-height: 100%;
-  position: relative;
-  height: 50vh;
-}
 
 .white {
   color: #fff !important;
+}
+
+.form-control {
+  background-color: transparent;
+  color: #fff;
 }

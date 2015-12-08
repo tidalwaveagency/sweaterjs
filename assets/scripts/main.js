@@ -20,6 +20,12 @@ var sweaterJS = (function () {
              "images/pixels/blue/6.jpg",
              "images/pixels/blue/7.jpg"]
   };
+
+  var tileData = {
+    "width": 8,
+    "height": 6
+  };
+
   var offset = {
     "width": 0,
     "height": 0
@@ -53,39 +59,58 @@ var sweaterJS = (function () {
 
   function loaded(){
     $('#preloader').hide();
-    for (var i = 0; i < 1920; i+= 16) {
+    for (var i = 0; i < 1920; i+= tileData.width) {
       tile(letterData.spacer, 'red');
     }
     offset.width = 0;
-    offset.height = 40 * 12;
-    for (var i = 0; i < 1920; i+= 16) {
+    offset.height = 40 * tileData.height;
+    for (var i = 0; i < 1920; i+= tileData.width) {
       tile(letterData.spacer, 'red');
     }
   }
 
-  function onKeyUp(){
-    var lineOne = document.getElementById("lineOne").value;
-    var lineTwo = document.getElementById("lineTwo").value;
-    var color;
-    if (document.getElementById('red').checked) {
-      color = document.getElementById('red').value;
-    }
-    if (document.getElementById('blue').checked) {
-      color = document.getElementById('blue').value;
-    }
-    var lineOneSize = 0, lineTwoSize = 0;
-    var lineOneLeftover = 0, lineTwoLeftover = 0;
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    offset.width = 0;
-    offset.height = 0;
-    for (var i = 0; i < lineOne.length; i++) {
-      if (letterData[lineOne.charAt(i).toLowerCase()] !== undefined) {
-        lineOneSize += letterData[lineOne.charAt(i).toLowerCase()].width * 16;
+  function lineLength(el){
+    var length = 0;
+    for (var i = 0; i < el.length; i++) {
+      if (letterData[el.charAt(i).toLowerCase()] !== undefined) {
+        length += letterData[el.charAt(i).toLowerCase()].width * tileData.width;
       }
     }
-    lineOneLeftover = 3840 - lineOneSize;
+    return length;
+  }
 
-    for (var i = 0; i < lineOneLeftover/4; i+= 16) {
+  function getColor(){
+    return $('.colorRadio:checked').val();
+  }
+
+  function onKeyUp(){
+
+    var lineOne = document.getElementById("lineOne").value;
+    var lineTwo = document.getElementById("lineTwo").value;
+
+    var color = getColor();
+
+    var lineOneSize = lineLength(lineOne),
+        lineTwoSize = lineLength(lineTwo);
+
+    var lineOneLeftover = 0,
+        lineTwoLeftover = 0;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    offset.width = 0;
+    offset.height = 0;
+
+    lineOneLeftover = 1920 - lineOneSize;
+
+    for (var i = 0; i < canvas.width/28; i++) {
+      tile(trimData.boat, color);
+    }
+
+    offset.height += trimData.boat.height * tileData.height;
+    offset.width = 0;
+
+    for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
       tile(letterData.spacer, color);
     }
 
@@ -95,22 +120,17 @@ var sweaterJS = (function () {
       }
     }
 
-    for (var i = 0; i < lineOneLeftover/4; i+= 16) {
+    for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
       tile(letterData.spacer, color);
     }
 
     if (lineTwo.length > 0) {
       offset.width = 0;
-      offset.height = 40 * 12;
+      offset.height += 40 * tileData.height;
 
-      for (var i = 0; i < lineTwo.length; i++) {
-        if (letterData[lineTwo.charAt(i).toLowerCase()] !== undefined) {
-          lineTwoSize += letterData[lineTwo.charAt(i).toLowerCase()].width * 16;
-        }
-      }
-      lineTwoLeftover = 3840 - lineTwoSize;
+      lineTwoLeftover = 1920 - lineTwoSize;
 
-      for (var i = 0; i < lineTwoLeftover/4; i+= 16) {
+      for (var i = 0; i < lineTwoLeftover/4; i+= tileData.width) {
         tile(letterData.spacer, color);
       }
 
@@ -120,38 +140,39 @@ var sweaterJS = (function () {
         }
       }
 
-      for (var i = 0; i < lineTwoLeftover/4; i+= 16) {
+      for (var i = 0; i < lineTwoLeftover/4; i+= tileData.width) {
         tile(letterData.spacer, color);
       }
 
     } else {
       offset.width = 0;
-      offset.height = 40 * 12;
-      for (var i = 0; i < 1920; i+= 16) {
+      offset.height = 40 * tileData.height;
+      for (var i = 0; i < 1920; i+= tileData.width) {
         tile(letterData.spacer, color);
       }
     }
   }
 
   function tile(character, color) {
+    var data;
     if (color === 'red') {
       for(c=0; c<character.width; c++) {
         for(r=0; r<character.height; r++) {
           context.drawImage(images.red[character.data[r][c]],
-          offset.width + (images.red[character.data[r][c]].width)*c, offset.height + (images.red[character.data[r][c]].height)*r,
-          images.red[character.data[r][c]].width, images.red[character.data[r][c]].height);
+          offset.width + tileData.width * c, offset.height + tileData.height * r,
+          tileData.width, tileData.height);
         }
       }
     } else if (color === 'blue') {
       for(c=0; c<character.width; c++) {
         for(r=0; r<character.height; r++) {
           context.drawImage(images.blue[character.data[r][c]],
-          offset.width + (images.blue[character.data[r][c]].width)*c, offset.height + (images.blue[character.data[r][c]].height)*r,
-          images.blue[character.data[r][c]].width, images.blue[character.data[r][c]].height);
+          offset.width + tileData.width * c, offset.height + tileData.height * r,
+          tileData.width, tileData.height);
         }
       }
     }
-    offset.width += character.width * 16;
+    offset.width += character.width * tileData.width;
   }
 
   function postImageToFacebook( authToken, filename, mimeType, imageData, message ) {
@@ -185,17 +206,15 @@ var sweaterJS = (function () {
               var ords = Array.prototype.map.call(datastr, byteValue);
               var ui8a = new Uint8Array(ords);
               this.send(ui8a.buffer);
-          }
+          };
       }
       xhr.sendAsBinary( formData );
   }
 
   function postCanvasToFacebook() {
   	var data = canvas.toDataURL("image/png");
-    console.log('wtf' + data);
   	var encodedPng = data.substring(data.indexOf(',') + 1, data.length);
   	var decodedPng = Base64Binary.decode(encodedPng);
-    console.log('wtf Decoded' + decodedPng);
   	FB.getLoginStatus(function(response) {
   	  if (response.status === "connected") {
   		postImageToFacebook(response.authResponse.accessToken, "uglysweater", "image/png", decodedPng, "www.tidalwave.christmas");

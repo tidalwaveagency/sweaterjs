@@ -4,6 +4,7 @@
       "files": [
         "scripts/base64binary.js",
         "scripts/letters.js",
+        "scripts/trim.js",
         "scripts/main.js"
       ],
       "main": true

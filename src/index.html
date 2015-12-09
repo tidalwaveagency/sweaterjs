@@ -9,6 +9,7 @@
 
         <link rel="stylesheet" href="styles/main.css">
         <script src="scripts/modernizr.js"></script>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
     </head>
     <body>
       <!--[if lt IE 8]>
@@ -52,7 +53,11 @@
                 <input type="text" class="form-control input-lg sweaterLine" id="lineThree">
               </div>
             </div>
-            <a href="#" onclick="sweaterJS.post();" class="ssk ssk-text ssk-facebook">Share On Facebook</a>
+            <a href="#" onclick="login();" class="ssk ssk-text ssk-facebook">Share On Facebook</a>
+
+            <button id="upload-button" style="display:none">Upload to S3</button>
+            <div id="results"></div>
+            <div id="fb-root"></div>
           </div>
 
           <!--
@@ -96,21 +101,89 @@
 
       <!-- Facebook Share JS Load -->
       <script>
-        window.fbAsyncInit = function() {
-          FB.init({
-            appId      : '1702389059994802',
-            xfbml      : true,
-            version    : 'v2.5'
-          });
+        function dataURItoBlob(dataURI) {
+            var binary = atob(dataURI.split(',')[1]);
+            var array = [];
+            for(var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+        }
+
+        var appId = '1702389059994802';
+        var roleArn = 'arn:aws:iam::038199334885:role/sweaterStorage';
+        var bucketName = 'tidalwave.sweaters';
+
+        AWS.config.region = 'us-west-2';
+
+        var fbUserId;
+
+        var bucket = new AWS.S3({
+          params: {
+            Bucket: bucketName
+          }
+        });
+
+        var canvasFile = document.getElementById('canvas');
+        var button = document.getElementById('upload-button');
+        var results = document.getElementById('results');
+        button.addEventListener('click', function () {
+            var typedArray = dataURItoBlob(canvasFile.toDataURL("image/jpeg"));
+            if (typedArray) {
+                results.innerHTML = '';
+                //Object key will be facebook-USERID#/FILE_NAME
+                var objKey = 'facebook-' + fbUserId + '/asdf.jpeg';
+                var params = {
+                    Key: objKey,
+                    ContentType: "image/jpeg",
+                    Body: typedArray,
+                    ACL: 'public-read'
+                };
+                bucket.putObject(params, function (err, data) {
+                    if (err) {
+                        results.innerHTML = 'ERROR: ' + err;
+                    }
+                });
+            } else {
+                results.innerHTML = 'Nothing to upload.';
+            }
+        }, false);
+
+        /*!
+         * Login to your application using Facebook.
+         * Uses the Facebook SDK for JavaScript available here:
+         * https://developers.facebook.com/docs/javascript/gettingstarted/
+         */
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: appId
+            });
         };
 
-        (function(d, s, id){
-           var js, fjs = d.getElementsByTagName(s)[0];
-           if (d.getElementById(id)) {return;}
-           js = d.createElement(s); js.id = id;
-           js.src = "https://connect.facebook.net/en_US/sdk.js";
-           fjs.parentNode.insertBefore(js, fjs);
-         }(document, 'script', 'facebook-jssdk'));
+        function login() {
+          FB.login(function (response) {
+              bucket.config.credentials = new AWS.WebIdentityCredentials({
+                  ProviderId: 'graph.facebook.com',
+                  RoleArn: roleArn,
+                  WebIdentityToken: response.authResponse.accessToken
+              });
+              fbUserId = response.authResponse.userID;
+              button.style.display = 'block';
+          });
+        }
+
+         // Load the Facebook SDK asynchronously
+
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {
+                return;
+            }
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
       </script>
 
       <!-- Google Analytics -->

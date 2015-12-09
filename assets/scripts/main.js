@@ -104,7 +104,12 @@ var sweaterJS = (function () {
       canvasWidth = 2304;
     }
 
-    canvasHeight = (trimData.top.height * tileData.height) + (trimData.tree.height * tileData.height) + (trimData.wave.height * tileData.height) + (trimData.boat.height * tileData.height);
+    canvasHeight = (trimData.topTrim.height * tileData.height) +
+                   (trimData.tree.height * tileData.height) +
+                   (trimData.top.height * tileData.height) +
+                   (trimData.bottom.height * tileData.height) +
+                   (trimData.boat.height * tileData.height) +
+                   (trimData.bottomTrim.height * tileData.height);
 
     if (lineOne.length > 0) {
       canvasHeight += 40 * tileData.height;
@@ -126,7 +131,12 @@ var sweaterJS = (function () {
     offset.width = 0;
     offset.height = 0;
 
-    lineOneLeftover = canvas.width - lineOneSize;
+    for (var i = 0; i < canvas.width/2; i++) {
+      tile(trimData.topTrim, color);
+    }
+
+    offset.width = 0;
+    offset.height += trimData.topTrim.height * tileData.height;
 
     for (var i = 0; i < canvas.width/36; i++) {
       tile(trimData.flake, color);
@@ -136,13 +146,15 @@ var sweaterJS = (function () {
     offset.height += trimData.tree.height * tileData.height;
     offset.width = 0;
 
-    for (var i = 0; i < canvas.width/12; i++) {
+    for (var i = 0; i < canvas.width/4; i++) {
       tile(trimData.top, color);
     }
 
     offset.height += trimData.top.height * tileData.height;
 
     offset.width = 0;
+
+    lineOneLeftover = canvas.width - lineOneSize;
 
     for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
       tile(letterData.spacer, color);
@@ -205,11 +217,11 @@ var sweaterJS = (function () {
     offset.height += 40 * tileData.height;
     offset.width = 0;
 
-    for (var i = 0; i < canvas.width/12; i++) {
-      tile(trimData.wave, color);
+    for (var i = 0; i < canvas.width/4; i++) {
+      tile(trimData.bottom, color);
     }
 
-    offset.height += trimData.wave.height * tileData.height;
+    offset.height += trimData.bottom.height * tileData.height;
     offset.width = 0;
 
     for (var i = 0; i < canvas.width/36; i++) {
@@ -218,6 +230,14 @@ var sweaterJS = (function () {
     }
 
     offset.height += trimData.tree.height * tileData.height;
+    offset.width = 0;
+
+    for (var i = 0; i < canvas.width/2; i++) {
+      tile(trimData.bottomTrim, color);
+    }
+
+    offset.height += trimData.bottomTrim.height * tileData.height;
+
 
   }
 

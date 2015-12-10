@@ -60,7 +60,21 @@ var sweaterJS = (function () {
 
   function loaded(){
     $('#preloader').hide();
+    if (getQueryString('lineOne').length === 0 && getQueryString('lineTwo').length === 0 && getQueryString('lineThree').length === 0) {
+      $('#lineOne').val("Merry Christmas");
+    } else {
+      $('#lineOne').val(decodeURI(getQueryString('lineOne')));
+      $('#lineTwo').val(decodeURI(getQueryString('lineTwo')));
+      $('#lineThree').val(decodeURIComponent(getQueryString('lineThree')));
+    }
     onKeyUp();
+  }
+
+  function getQueryString(key) {
+    var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+    var r=[], m;
+    while ((m=re.exec(document.location.search)) !== null) r.push(m[1]);
+    return r;
   }
 
   function lineLength(el){
@@ -143,36 +157,38 @@ var sweaterJS = (function () {
       tile(trimData.tree, color);
     }
 
-    offset.height += trimData.tree.height * tileData.height;
     offset.width = 0;
+    offset.height += trimData.tree.height * tileData.height;
 
     for (var i = 0; i < canvas.width/4; i++) {
       tile(trimData.top, color);
     }
 
+    offset.width = 0;
     offset.height += trimData.top.height * tileData.height;
 
-    offset.width = 0;
+    if (lineOne.length > 0) {
+      lineOneLeftover = canvas.width - lineOneSize;
 
-    lineOneLeftover = canvas.width - lineOneSize;
-
-    for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
-      tile(letterData.spacer, color);
-    }
-
-    for (var i = 0; i < lineOne.length; i++) {
-      if (letterData[lineOne.charAt(i).toLowerCase()] !== undefined) {
-        tile(letterData[lineOne.charAt(i).toLowerCase()], color);
+      for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
+        tile(letterData.spacer, color);
       }
-    }
 
-    for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
-      tile(letterData.spacer, color);
+      for (var i = 0; i < lineOne.length; i++) {
+        if (letterData[lineOne.charAt(i).toLowerCase()] !== undefined) {
+          tile(letterData[lineOne.charAt(i).toLowerCase()], color);
+        }
+      }
+
+      for (var i = 0; i < lineOneLeftover/4; i+= tileData.width) {
+        tile(letterData.spacer, color);
+      }
+
+      offset.height += 40 * tileData.height;
     }
 
     if (lineTwo.length > 0) {
       offset.width = 0;
-      offset.height += 40 * tileData.height;
 
       lineTwoLeftover = canvas.width - lineTwoSize;
 
@@ -190,11 +206,11 @@ var sweaterJS = (function () {
         tile(letterData.spacer, color);
       }
 
+      offset.height += 40 * tileData.height;
     }
 
     if (lineThree.length > 0) {
       offset.width = 0;
-      offset.height += 40 * tileData.height;
 
       lineThreeLeftover = canvas.width - lineThreeSize;
 
@@ -211,10 +227,10 @@ var sweaterJS = (function () {
       for (var i = 0; i < lineThreeLeftover/4; i+= tileData.width) {
         tile(letterData.spacer, color);
       }
-
+      
+      offset.height += 40 * tileData.height;
     }
 
-    offset.height += 40 * tileData.height;
     offset.width = 0;
 
     for (var i = 0; i < canvas.width/4; i++) {

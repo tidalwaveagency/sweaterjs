@@ -110,6 +110,10 @@
             return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
         }
 
+        function generateID() {
+            return Math.random().toString(36).substr(2,9);
+        }
+
         var appId = '1702389059994802';
         var roleArn = 'arn:aws:iam::038199334885:role/sweaterStorage';
         var bucketName = 'tidalwave.sweaters';
@@ -132,7 +136,7 @@
             if (typedArray) {
                 results.innerHTML = '';
                 //Object key will be facebook-USERID#/FILE_NAME
-                var objKey = 'facebook-' + fbUserId + '/asdf.jpeg';
+                var objKey = 'facebook-' + fbUserId + '/' + generateID() + '.jpeg';
                 var params = {
                     Key: objKey,
                     ContentType: "image/jpeg",
@@ -142,6 +146,27 @@
                 bucket.putObject(params, function (err, data) {
                     if (err) {
                         results.innerHTML = 'ERROR: ' + err;
+                    } else {
+                      var queryString;
+                      if ($('#lineOne').val.length > 0) {
+                        queryString = 'lineOne=' + encodeURI(document.getElementById("lineOne").value);
+                      }
+                      if ($('#lineTwo').val.length > 0) {
+                        queryString += '&lineTwo=' + encodeURI(document.getElementById("lineTwo").value);
+                      }
+                      if ($('#lineTwo').val.length > 0) {
+                        queryString += '&lineThree=' + encodeURI(document.getElementById("lineThree").value);
+                      }
+                      console.log(queryString);
+                      FB.ui({
+                        method: 'share',
+                        picture: 'http://tidalwave.sweaters.s3.amazonaws.com/' + objKey,
+                        link: 'www.tidalwave.christmas/index.html?' + queryString,
+                        href: 'www.tidalwave.christmas/index.html?' + queryString,
+                        description: 'Ugly Sweater from Tidalwave',
+                        caption: 'Some caption',
+                        type: 'photo'
+                      }, function(response){});
                     }
                 });
             } else {
@@ -156,8 +181,26 @@
          */
         window.fbAsyncInit = function () {
             FB.init({
-                appId: appId
+                appId: appId,
+                status: true,
+                cookie: true,
             });
+
+            FB.getLoginStatus(function(response) {
+            if (response.status === 'connected') {
+              bucket.config.credentials = new AWS.WebIdentityCredentials({
+                  ProviderId: 'graph.facebook.com',
+                  RoleArn: roleArn,
+                  WebIdentityToken: response.authResponse.accessToken
+              });
+              fbUserId = response.authResponse.userID;
+              button.style.display = 'block';
+            } else if (response.status === 'not_authorized') {
+              login();
+            } else {
+              login();
+            }
+          });
         };
 
         function login() {
@@ -207,7 +250,7 @@
               callback: function (value) { sweaterJS.keyUp(); },
               wait: 750,
               highlight: true,
-              captureLength: 2
+              captureLength: 1
           });
   			});
   		</script>

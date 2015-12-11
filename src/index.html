@@ -11,14 +11,14 @@
         <script src="scripts/modernizr.js"></script>
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
     </head>
-    <body>
+    <body class="loading">
       <!--[if lt IE 8]>
           <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
       <![endif]-->
-      <div id="preloader"></div>
+      <div id="preloader"><h1 data-content="Loading...">Loading...</h1></div>
       <div class="content-wrapper">
         <canvas id="canvas" width="1920" height="1080"></canvas>
-        <div class="container">
+        <div class="container" id="interface">
           <div class="row intro">
             <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
               <h1 class="text-center">You look like you need a custom sweater</h1>
@@ -38,22 +38,24 @@
             <div class="col-sm-4">
               <div class="form-group">
                 <label for="lineOne">Line One</label>
-                <input type="text" class="form-control input-lg sweaterLine" value="Merry Christmas" id="lineOne">
+                <input type="text" maxlength="16" class="form-control input-lg sweaterLine" value="Merry Christmas" id="lineOne">
               </div>
             </div>
             <div class="col-sm-4">
               <div class="form-group">
                 <label for="lineOne">Line Two</label>
-                <input type="text" class="form-control input-lg sweaterLine" id="lineTwo">
+                <input type="text" maxlength="16" class="form-control input-lg sweaterLine" id="lineTwo">
               </div>
             </div>
             <div class="col-sm-4">
               <div class="form-group">
                 <label for="lineOne">Line Three</label>
-                <input type="text" class="form-control input-lg sweaterLine" id="lineThree">
+                <input type="text"  maxlength="16" class="form-control input-lg sweaterLine" id="lineThree">
               </div>
             </div>
             <a href="#" onclick="login();" class="ssk ssk-text ssk-facebook">Share On Facebook</a>
+
+            <a href="#" onclick="sweaterJS.save();" class="ssk ssk-text">Download</a>
 
             <button id="upload-button" style="display:none">Upload to S3</button>
             <div id="results"></div>
@@ -246,12 +248,19 @@
       <script>
   			$(function() {
   				sweaterJS.init();
+
           $(".sweaterLine").typeWatch({
-              callback: function (value) { sweaterJS.keyUp(); },
+              callback: function (value) { sweaterJS.render(); },
               wait: 750,
               highlight: true,
               captureLength: 1
           });
+
+          snowStorm.vMaxX = 1;
+          snowStorm.vMaxY = 3;
+          snowStorm.excludeMobile = false;
+          snowStorm.snowStick = false;
+
   			});
   		</script>
 

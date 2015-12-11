@@ -83,4 +83,4 @@ var Base64Binary = {
 
 		return uarray;
 	}
-}
+};

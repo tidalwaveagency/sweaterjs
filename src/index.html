@@ -9,6 +9,7 @@
 
         <link rel="stylesheet" href="styles/main.css">
         <script src="scripts/modernizr.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
         <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
     </head>
     <body class="loading">
@@ -53,11 +54,15 @@
                 <input type="text"  maxlength="16" class="form-control input-lg sweaterLine" id="lineThree">
               </div>
             </div>
-            <a href="#" onclick="login();" class="ssk ssk-text ssk-facebook">Share On Facebook</a>
+            <div class="col-sm-12">
+              <div class="form-group share">
+                <a href="#" id="share-button" class="ssk ssk-text ssk-facebook">Share Your Sweater</button>
+                <a href="#" id="download-button" onclick="sweaterJS.save();" class="ssk ssk-text ssk-emerald">
+                  <span class="fa fa-download"></span>Download Your Sweater
+                </a>
+              </div>
+            </div>
 
-            <a href="#" onclick="sweaterJS.save();" class="ssk ssk-text">Download</a>
-
-            <button id="upload-button" style="display:none">Upload to S3</button>
             <div id="results"></div>
             <div id="fb-root"></div>
           </div>
@@ -78,158 +83,15 @@
           -->
 
         </div>
+        <div class="push"></div>
       </div>
-
+      <footer class="footer">
+        <a href="http://www.tidalwaveagency.com" class="boat-tag" target="_blank"><img src="images/boat-tag.png"></a>
+      </footer>
 
       <!-- JQuery Loader -->
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
       <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.3.min.js"><\/script>')</script>
-
-      <!-- Font Loader -->
-      <script type="text/javascript">
-        WebFontConfig = {
-          google: { families: [ 'Lato:400,700:latin', 'Merriweather:400,700:latin' ] }
-        };
-        (function() {
-          var wf = document.createElement('script');
-          wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-            '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
-          wf.type = 'text/javascript';
-          wf.async = 'true';
-          var s = document.getElementsByTagName('script')[0];
-          s.parentNode.insertBefore(wf, s);
-        })();
-      </script>
-
-      <!-- Facebook Share JS Load -->
-      <script>
-        function dataURItoBlob(dataURI) {
-            var binary = atob(dataURI.split(',')[1]);
-            var array = [];
-            for(var i = 0; i < binary.length; i++) {
-                array.push(binary.charCodeAt(i));
-            }
-            return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
-        }
-
-        function generateID() {
-            return Math.random().toString(36).substr(2,9);
-        }
-
-        var appId = '1702389059994802';
-        var roleArn = 'arn:aws:iam::038199334885:role/sweaterStorage';
-        var bucketName = 'tidalwave.sweaters';
-
-        AWS.config.region = 'us-west-2';
-
-        var fbUserId;
-
-        var bucket = new AWS.S3({
-          params: {
-            Bucket: bucketName
-          }
-        });
-
-        var canvasFile = document.getElementById('canvas');
-        var button = document.getElementById('upload-button');
-        var results = document.getElementById('results');
-        button.addEventListener('click', function () {
-            var typedArray = dataURItoBlob(canvasFile.toDataURL("image/jpeg"));
-            if (typedArray) {
-                results.innerHTML = '';
-                //Object key will be facebook-USERID#/FILE_NAME
-                var objKey = 'facebook-' + fbUserId + '/' + generateID() + '.jpeg';
-                var params = {
-                    Key: objKey,
-                    ContentType: "image/jpeg",
-                    Body: typedArray,
-                    ACL: 'public-read'
-                };
-                bucket.putObject(params, function (err, data) {
-                    if (err) {
-                        results.innerHTML = 'ERROR: ' + err;
-                    } else {
-                      var queryString;
-                      if ($('#lineOne').val.length > 0) {
-                        queryString = 'lineOne=' + encodeURI(document.getElementById("lineOne").value);
-                      }
-                      if ($('#lineTwo').val.length > 0) {
-                        queryString += '&lineTwo=' + encodeURI(document.getElementById("lineTwo").value);
-                      }
-                      if ($('#lineTwo').val.length > 0) {
-                        queryString += '&lineThree=' + encodeURI(document.getElementById("lineThree").value);
-                      }
-                      console.log(queryString);
-                      FB.ui({
-                        method: 'share',
-                        picture: 'http://tidalwave.sweaters.s3.amazonaws.com/' + objKey,
-                        link: 'www.tidalwave.christmas/index.html?' + queryString,
-                        href: 'www.tidalwave.christmas/index.html?' + queryString,
-                        description: 'Ugly Sweater from Tidalwave',
-                        caption: 'Some caption',
-                        type: 'photo'
-                      }, function(response){});
-                    }
-                });
-            } else {
-                results.innerHTML = 'Nothing to upload.';
-            }
-        }, false);
-
-        /*!
-         * Login to your application using Facebook.
-         * Uses the Facebook SDK for JavaScript available here:
-         * https://developers.facebook.com/docs/javascript/gettingstarted/
-         */
-        window.fbAsyncInit = function () {
-            FB.init({
-                appId: appId,
-                status: true,
-                cookie: true,
-            });
-
-            FB.getLoginStatus(function(response) {
-            if (response.status === 'connected') {
-              bucket.config.credentials = new AWS.WebIdentityCredentials({
-                  ProviderId: 'graph.facebook.com',
-                  RoleArn: roleArn,
-                  WebIdentityToken: response.authResponse.accessToken
-              });
-              fbUserId = response.authResponse.userID;
-              button.style.display = 'block';
-            } else if (response.status === 'not_authorized') {
-              login();
-            } else {
-              login();
-            }
-          });
-        };
-
-        function login() {
-          FB.login(function (response) {
-              bucket.config.credentials = new AWS.WebIdentityCredentials({
-                  ProviderId: 'graph.facebook.com',
-                  RoleArn: roleArn,
-                  WebIdentityToken: response.authResponse.accessToken
-              });
-              fbUserId = response.authResponse.userID;
-              button.style.display = 'block';
-          });
-        }
-
-         // Load the Facebook SDK asynchronously
-
-        (function (d, s, id) {
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {
-                return;
-            }
-            js = d.createElement(s);
-            js.id = id;
-            js.src = "//connect.facebook.net/en_US/all.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-      </script>
 
       <!-- Google Analytics -->
       <script>
@@ -256,10 +118,17 @@
               captureLength: 1
           });
 
-          snowStorm.vMaxX = 1;
-          snowStorm.vMaxY = 3;
-          snowStorm.excludeMobile = false;
-          snowStorm.snowStick = false;
+          var regex = /^[a-zA-Z*\.*\?\'\s]$/;
+          $(".sweaterLine").keypress(function(event) {
+            var _event = event || window.event;
+            var key = _event.keyCode || _event.which;
+            key = String.fromCharCode(key);
+            if(!regex.test(key)) {
+              _event.returnValue = false;
+              if (_event.preventDefault)
+                  _event.preventDefault();
+            }
+          });
 
   			});
   		</script>

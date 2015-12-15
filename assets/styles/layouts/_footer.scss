@@ -1,20 +1,21 @@
 .footer {
-  position: absolute;
-  bottom: 0;
   width: 100%;
-  /* Set the fixed height of the footer here */
-  height: 50px;
-  background-color: rgba(0,48,60,0.5);
-  .footer-logo {
-    max-width: 300px;
-    width: 100%;
+  position: relative;
+  height: 99px;
+  background-color: #11251b;
+  background-image: url(../images/footerTile.png);
+  background-size: 16px 99px;
+  box-shadow: 0px 0px 25px 15px rgba(0,0,0,0.9);
+  .boat-tag {
+    max-width: 159px;
     display: block;
     margin: 0 auto;
-    padding-left: 50px;
-    padding-right: 50px;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    img {
+      width: 100%;
+    }
   }
 }

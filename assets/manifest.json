@@ -3,7 +3,6 @@
     "main.js": {
       "files": [
         "scripts/base64binary.js",
-        "scripts/snowstorm.js",
         "scripts/letters.js",
         "scripts/trim.js",
         "scripts/main.js"

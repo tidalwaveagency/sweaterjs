@@ -1,3 +1,146 @@
+//Font Loader
+WebFontConfig = {
+  google: { families: [ 'Lato:400,700:latin', 'Merriweather:400,700:latin' ] }
+};
+(function() {
+  var wf = document.createElement('script');
+  wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+    '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+  wf.type = 'text/javascript';
+  wf.async = 'true';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(wf, s);
+})();
+
+function dataURItoBlob(dataURI) {
+    var binary = atob(dataURI.split(',')[1]);
+    var array = [];
+    for(var i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+    }
+    return new Blob([new Uint8Array(array)], {type: 'image/jpeg'});
+}
+
+function generateID() {
+    return Math.random().toString(36).substr(2,9);
+}
+
+function fbShare() {
+  var typedArray = dataURItoBlob(canvasFile.toDataURL("image/jpeg"));
+  if (typedArray) {
+      results.innerHTML = '';
+      //Object key will be facebook-USERID#/FILE_NAME
+      var objKey = 'facebook-' + fbUserId + '/' + generateID() + '.jpeg';
+      var params = {
+          Key: objKey,
+          ContentType: "image/jpeg",
+          Body: typedArray,
+          ACL: 'public-read'
+      };
+      bucket.putObject(params, function (err, data) {
+          if (err) {
+              results.innerHTML = 'ERROR: ' + err;
+          } else {
+            var queryString;
+            if ($('#lineOne').val.length > 0) {
+              queryString = 'l1=' + encodeURI(document.getElementById("lineOne").value);
+            }
+            if ($('#lineTwo').val.length > 0) {
+              queryString += '&l2=' + encodeURI(document.getElementById("lineTwo").value);
+            }
+            if ($('#lineTwo').val.length > 0) {
+              queryString += '&l3=' + encodeURI(document.getElementById("lineThree").value);
+            }
+            console.log(queryString);
+            FB.ui({
+              method: 'share',
+              picture: 'http://tidalwave.sweaters.s3.amazonaws.com/' + objKey,
+              link: 'www.tidalwave.christmas/index.html?' + queryString,
+              href: 'www.tidalwave.christmas/index.html?' + queryString,
+              description: 'Ugly Sweater from Tidalwave',
+              caption: 'Some caption',
+              type: 'photo'
+            }, function(response){});
+          }
+      });
+  } else {
+      results.innerHTML = 'Nothing to upload.';
+  }
+}
+
+var appId = '1702389059994802';
+var roleArn = 'arn:aws:iam::038199334885:role/sweaterStorage';
+var bucketName = 'tidalwave.sweaters';
+
+AWS.config.region = 'us-west-2';
+
+var fbUserId;
+
+var bucket = new AWS.S3({
+  params: {
+    Bucket: bucketName
+  }
+});
+
+var canvasFile = document.getElementById('canvas');
+var shareButton = document.getElementById('share-button');
+var results = document.getElementById('results');
+shareButton.addEventListener('click', function () {
+  FB.getLoginStatus(function(response) {
+    if (response.status === 'connected') {
+      bucket.config.credentials = new AWS.WebIdentityCredentials({
+          ProviderId: 'graph.facebook.com',
+          RoleArn: roleArn,
+          WebIdentityToken: response.authResponse.accessToken
+      });
+      fbUserId = response.authResponse.userID;
+      fbShare();
+    } else if (response.status === 'not_authorized') {
+      login();
+    } else {
+      login();
+    }
+  });
+}, false);
+
+/*!
+ * Login to your application using Facebook.
+ * Uses the Facebook SDK for JavaScript available here:
+ * https://developers.facebook.com/docs/javascript/gettingstarted/
+ */
+window.fbAsyncInit = function () {
+  FB.init({
+    appId: appId,
+    status: true,
+    cookie: true,
+  });
+};
+
+function login() {
+  FB.login(function (response) {
+      bucket.config.credentials = new AWS.WebIdentityCredentials({
+          ProviderId: 'graph.facebook.com',
+          RoleArn: roleArn,
+          WebIdentityToken: response.authResponse.accessToken
+      });
+      fbUserId = response.authResponse.userID;
+      fbShare();
+  });
+}
+
+ // Load the Facebook SDK asynchronously
+
+(function (d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+        return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
 var sweaterJS = (function () {
 
   var canvas  = document.getElementById("canvas"),
@@ -77,6 +220,9 @@ var sweaterJS = (function () {
           "images/pixels/blue/5.jpg",
           "images/pixels/blue/6.jpg",
           "images/pixels/blue/7.jpg"
+        ],
+        "tag": [
+          "images/tag.png"
         ]
       },
 
@@ -97,7 +243,8 @@ var sweaterJS = (function () {
 
       imgs = {
         "red": [],
-        "blue": []
+        "blue": [],
+        "tag": [],
       },
 
       imgsInverted = {
@@ -135,6 +282,7 @@ var sweaterJS = (function () {
   function init() {
     loadImgs(imgSrcs.red, 'red');
     loadImgs(imgSrcs.blue, 'blue');
+    loadImgs(imgSrcs.tag, 'tag');
     invertImgs('red');
   }
 
@@ -143,7 +291,7 @@ var sweaterJS = (function () {
       $('#preloader').hide();
       $('body').removeClass('loading');
     }, 2000);
-    //processQueryStrings();
+    processQueryStrings();
     render();
   }
 
@@ -257,6 +405,22 @@ var sweaterJS = (function () {
         count += proccessTrimData(trimData.bottom, sweaterData.bottomBorder, targetLength);
         if(count >= targetLength) {break;}
     }
+
+    count = 0;
+    resetContainer(sweaterData.topEdge);
+
+    while (count < targetLength) {
+        count += proccessTrimData(trimData.topEdge, sweaterData.topEdge, targetLength);
+        if(count >= targetLength) {break;}
+    }
+
+    count = 0;
+    resetContainer(sweaterData.bottomEdge);
+
+    while (count < targetLength) {
+        count += proccessTrimData(trimData.bottomEdge, sweaterData.bottomEdge, targetLength);
+        if(count >= targetLength) {break;}
+    }
   }
 
   function addPadding(container, padding, targetLength){
@@ -279,6 +443,10 @@ var sweaterJS = (function () {
     if (longestLine <= 20) {
       proccessLineData("Merry Christmas", sweaterData.l1);
       longestLine += sweaterData.l1.width;
+    }
+
+    if (longestLine > 20 && longestLine < 120) {
+      longestLine += 100;
     }
 
     addPadding(sweaterData.l1, letterData.spacer, longestLine);
@@ -307,54 +475,23 @@ var sweaterJS = (function () {
 
   function renderSection(section) {
     for(i = 0; i < section.data.length; i++) {
-      tile(section.data[i], imgsInverted.red);
+      tile(section.data[i], imgs.red);
     }
     offset.width = 0;
     offset.height += section.height * tileData.height;
   }
 
-  function invertData() {
-    for (var section in sweaterData) {
-      for (var character in sweaterData[section].data) {
-        for(c=0; c < sweaterData[section].data[character].width; c++) {
-          for(r=0; r < sweaterData[section].data[character].height; r++) {
-            switch (sweaterData[section].data[character].data[r][c]) {
-              case 0:
-                  sweaterData[section].data[character].data[r][c] = 6;
-                  break;
-              case 1:
-                  sweaterData[section].data[character].data[r][c] = 3;
-                  break;
-              case 2:
-                  sweaterData[section].data[character].data[r][c] = 4;
-                  break;
-              case 3:
-                  sweaterData[section].data[character].data[r][c] = 1;
-                  break;
-              case 4:
-                  sweaterData[section].data[character].data[r][c] = 4;
-                  break;
-              case 5:
-                  sweaterData[section].data[character].data[r][c] = 7;
-                  break;
-              case 6:
-                  sweaterData[section].data[character].data[r][c] = 0;
-                  break;
-              case 7:
-                  sweaterData[section].data[character].data[r][c] = 5;
-                  break;
-            }
-          }
-        }
-      }
-    }
+  function stitchTag() {
+    context.drawImage(imgs.tag[0],
+    (canvasData.width * tileData.width/2) - 140, (canvasData.height * tileData.height) - 100,
+    280, 120);
   }
 
   function render() {
     getSweaterData();
     resetCanvas();
     setCanvasSize();
-    console.log(sweaterData);
+    renderSection(sweaterData.topEdge);
     renderSection(sweaterData.topTrim);
     renderSection(sweaterData.topBorder);
     renderSection(sweaterData.l1);
@@ -362,6 +499,8 @@ var sweaterJS = (function () {
     renderSection(sweaterData.l3);
     renderSection(sweaterData.bottomBorder);
     renderSection(sweaterData.bottomTrim);
+    renderSection(sweaterData.bottomEdge);
+    stitchTag();
   }
 
   function tile(character, tiles) {

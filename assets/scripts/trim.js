@@ -63,7 +63,7 @@ var trimData = {
       [5,1,5,1]
     ]
   },
-  "topTrim": {
+  "topEdge": {
     "width": 2,
     "height": 11,
     "data": [
@@ -80,13 +80,18 @@ var trimData = {
       [5,1]
     ]
   },
-  "bottomTrim": {
+  "bottomEdge": {
     "width": 2,
-    "height": 11,
+    "height": 16,
     "data": [
       [7,3],
       [5,1],
       [7,3],
+      [4,0],
+      [4,0],
+      [4,0],
+      [4,0],
+      [4,0],
       [4,0],
       [4,0],
       [4,0],
